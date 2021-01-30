@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from .models import *
 from django.forms import inlineformset_factory
 from .forms import OrderForm
-
+from .filters import OrderFilter
 # Create your views here.
 
 def home(request):
@@ -11,15 +11,17 @@ def home(request):
 	customers = Customer.objects.all()
 
 	total_customers = customers.count()
-
 	total_orders = orders.count()
 	delivered = orders.filter(status='Delivered').count()
 	pending = orders.filter(status='Pending').count()
 
-	context = {'orders':orders, 'customers':customers,
-	'total_orders':total_orders,'delivered':delivered,
-	'pending':pending }
-
+	context = {
+				'orders':orders,
+				'customers':customers,
+				'total_orders':total_orders,
+				'delivered':delivered,
+				'pending':pending 
+		}
 	return render(request, 'accounts/dashboard.html', context)
 
 def products(request):
@@ -29,19 +31,27 @@ def products(request):
 		'products':products
 	})
 
-def customer(request):
+def customer(request, pk_test):
 	customer = Customer.objects.get(id=pk_test)
 
 	orders = customer.order_set.all()
 	order_count = orders.count()
 
-	context = {'customer':customer, 'orders':orders, 'order_count':order_count}
+	myFilter = OrderFilter(request.GET, queryset=orders)
+	orders = myFilter.qs
+
+	context = {	'customer':customer,
+				'orders':orders,
+				'order_count':order_count,
+				'myFilter':myFilter
+			}
+
 	return render(request, 'accounts/customer.html',context)
 
 def createOrder(request, pk):
 	OrderFormSet = inlineformset_factory(Customer, Order, fields=('product', 'status'), extra=10 )
 	customer = Customer.objects.get(id=pk)
-	formset = OrderFormSet(queryset=Order.objects.none(),instance=customer)
+	formset = OrderFormSet(queryset=Order.objects.none(), instance=customer)
 	#form = OrderForm(initial={'customer':customer})
 	if request.method == 'POST':
 		#print('Printing POST:', request.POST)
