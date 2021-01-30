@@ -9,9 +9,9 @@ from django.contrib.auth.models import Group
 
 # Create your views here.
 from .models import *
-from .forms import OrderForm, CreateUserForm
+from .forms import OrderForm, CreateUserForm, CustomerForm
 from .filters import OrderFilter
-
+from .decorators import unauthenticated_user, allowed_users, admin_only
 
 @unauthenticated_user
 def registerPage(request):
@@ -34,7 +34,7 @@ def registerPage(request):
 			messages.success(request, 'Account was created for' + username)
 			return redirect('login')
 
-	context = {'form': form}
+	context = {'form':form}
 	return render(request, 'accounts/register.html', context)
 
 @unauthenticated_user
@@ -61,7 +61,7 @@ def logoutUser(request):
 
 
 @login_required(login_url='login')
-@adminonly
+@admin_only
 def home(request):
 	
 	orders = Order.objects.all()
@@ -82,7 +82,7 @@ def home(request):
 	return render(request, 'accounts/dashboard.html', context)
 
 @login_required(login_url='login')
-@allowed_roles(allowed_roles=['customer'])
+@allowed_users(allowed_roles=['customer'])
 def userPage(request):
 	orders = request.user.customer.order_set.all()
 
@@ -95,6 +95,22 @@ def userPage(request):
 	context = {'orders':orders, 'total_orders':total_orders,
 	'delivered':delivered,'pending':pending}
 	return render(request, 'accounts/user.html', context)
+
+
+@login_required(login_url='login')
+@allowed_users(allowed_roles=['customer'])
+def accountSettings(request):
+	customer = request.user.customer
+	form = CustomerForm(instance=customer)
+
+	if request.method == 'POST':
+		form = CustomerForm(request.POST, request.FILES,instance=customer)
+		if form.is_valid():
+			form.save()
+
+
+	context = {'form':form}
+	return render(request, 'accounts/account_settings.html', context)
 
 
 @login_required(login_url='login')
