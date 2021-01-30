@@ -10,7 +10,7 @@ from django.contrib.auth.models import Group
 # Create your views here.
 from .models import *
 from .forms import OrderForm, CreateUserForm, CustomerForm
-from .filters import OrderFilter
+from .filters import *
 from .decorators import unauthenticated_user, allowed_users, admin_only
 
 @unauthenticated_user
@@ -166,7 +166,8 @@ def updateOrder(request, pk):
 
 	order = Order.objects.get(id=pk)
 	form = OrderForm(instance=order)
-
+	print('ORDER:', order)
+	
 	if request.method == 'POST':
 		form = OrderForm(request.POST, instance=order)
 		if form.is_valid():
