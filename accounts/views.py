@@ -15,7 +15,7 @@ from .decorators import unauthenticated_user, allowed_users, admin_only
 
 @unauthenticated_user
 def registerPage(request):
-	
+
 	form = CreateUserForm()
 	if request.method == 'POST':
 		form = CreateUserForm(request.POST)
@@ -84,8 +84,12 @@ def userPage(request):
 
 	print('ORDERS:', orders)
 
-	context = {'orders':orders, 'total_orders':total_orders,
-	'delivered':delivered,'pending':pending}
+	context = {
+			'orders':orders,
+			'total_orders':total_orders,
+			'delivered':delivered,
+			'pending':pending
+		}
 	return render(request, 'accounts/user.html', context)
 
 
@@ -125,11 +129,12 @@ def customer(request, pk_test):
 	myFilter = OrderFilter(request.GET, queryset=orders)
 	orders = myFilter.qs
 
-	context = {	'customer':customer,
+	context = {	
+				'customer':customer,
 				'orders':orders,
 				'order_count':order_count,
-				'myFilter':myFilter
-			}
+				'myFilter':myFilter,
+		}
 
 	return render(request, 'accounts/customer.html',context)
 
