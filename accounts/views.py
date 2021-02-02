@@ -106,7 +106,7 @@ def accountSettings(request):
 
 
 	context = {'form':form}
-	return render(request, 'accounts/account_settings.html', context)
+	return render(request, 'accounts/account_setting.html', context)
 
 
 @login_required(login_url='login')

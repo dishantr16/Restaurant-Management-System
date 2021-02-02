@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 
 # Create your models here.
 class Customer(models.Model):
-	
+	user = models.OneToOneField(User, null=True, blank=True, on_delete=models.CASCADE)
 	name = models.CharField(max_length=64, null=True)
 	phone = models.CharField(max_length=10, null=True)
 	email = models.EmailField(max_length=254, null=True)
@@ -21,8 +21,8 @@ class Tag(models.Model):
 class Product(models.Model):
 	
 	CATEGORY = (
-			('Indoor', 'Indoor'),
-			('Out Door', 'Out Door'),
+			('Veg', 'Veg'),
+			('Non Veg', 'Non Veg'),
 			)
 	
 	name = models.CharField(max_length=64, null=True)
@@ -30,7 +30,7 @@ class Product(models.Model):
 	category = models.CharField(max_length=200, null=True, choices=CATEGORY)
 	description = models.CharField(max_length=200, null=True)
 	date_created = models.DateTimeField(auto_now_add=True, null=True)
-	tags = models.ManyToManyField(Tag)
+	tags = models.ManyToManyField(Tag, blank=True, related_name='products')
 
 	def __str__(self):
 		return f"{self.name}"
